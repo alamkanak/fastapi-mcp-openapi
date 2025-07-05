@@ -1,0 +1,23 @@
+[project]
+name = "fastapi-mcp-openapi"
+version = "0.1.0"
+description = "FastAPI MCP OpenAPI - A library that provides MCP tools for endpoint introspection in FastAPI applications"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "FastAPI MCP OpenAPI Contributors"}
+]
+keywords = ["fastapi", "mcp", "model-context-protocol", "openapi", "api-documentation"]
+dependencies = [
+    "fastapi>=0.115.14",
+    "pydantic>=2.11.7",
+    "typing-extensions>=4.14.1",
+    "uvicorn>=0.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.0.0",
+]
