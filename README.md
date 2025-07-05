@@ -9,6 +9,7 @@ A FastAPI library that provides Model Context Protocol (MCP) tools for endpoint 
 - **MCP Streamable HTTP Transport**: Full compatibility with the latest MCP protocol (2025-03-26)
 - **Easy Integration**: Simple mounting system similar to fastapi-mcp
 - **Security**: Built-in CORS protection and origin validation
+- **Focused Tool Set**: Only provides tools capability - resources and prompts endpoints are disabled
 
 ## Installation
 

@@ -17,6 +17,7 @@ Successfully created a Python library called `fastapi-mcp-openapi` that provides
 3. **MCP Server Integration**: Uses `mcp.server.fastmcp.FastMCP` for MCP protocol support
 4. **Starlette Mounting**: Mounts MCP server as ASGI middleware with CORS support
 5. **OpenAPI Integration**: Uses FastAPI's `get_openapi` utility for schema extraction
+6. **Focused Capability Set**: Only advertises tools capability - resources and prompts are disabled
 
 ### Technical Implementation
 - **Protocol**: Latest MCP Streamable HTTP transport

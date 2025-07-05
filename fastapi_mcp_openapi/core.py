@@ -8,7 +8,6 @@ to provide MCP tools for endpoint introspection and OpenAPI documentation.
 import json
 from typing import Dict, Any
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 from mcp.server.fastmcp import FastMCP
@@ -158,9 +157,7 @@ class FastAPIMCPOpenAPI:
                                 "version": self.server_version,
                                 "transport": "streamable-http",
                                 "capabilities": {
-                                    "tools": {},
-                                    "resources": {},
-                                    "prompts": {}
+                                    "tools": {}
                                 }
                             }),
                             media_type="application/json",
@@ -210,9 +207,7 @@ class FastAPIMCPOpenAPI:
                                                 "version": self.server_version
                                             },
                                             "capabilities": {
-                                                "tools": {},
-                                                "resources": {},
-                                                "prompts": {}
+                                                "tools": {}
                                             }
                                         }
                                     }
