@@ -5,7 +5,8 @@ A FastAPI library that provides Model Context Protocol (MCP) tools for endpoint 
 ## Features
 
 - **Endpoint Discovery**: Lists all available FastAPI endpoints with metadata
-- **OpenAPI Documentation**: Provides detailed OpenAPI schema for specific endpoints
+- **OpenAPI Documentation**: Provides detailed OpenAPI schema for specific endpoints with fully resolved inline schemas
+- **Clean Output**: Removes unnecessary references and fields for minimal context usage
 - **MCP Streamable HTTP Transport**: Full compatibility with the latest MCP protocol (2025-03-26)
 - **Easy Integration**: Simple mounting system similar to fastapi-mcp
 - **Security**: Built-in CORS protection and origin validation
@@ -111,9 +112,7 @@ Get detailed OpenAPI documentation for a specific endpoint.
 **Output**: JSON object with detailed OpenAPI information including:
 - `path`: The endpoint path
 - `method`: The HTTP method
-- `operation`: OpenAPI operation details
-- `components`: OpenAPI component schemas
-- Or error information if endpoint not found
+- `operation`: OpenAPI operation details with fully resolved schemas
 
 ## Transport Support
 

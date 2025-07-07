@@ -116,11 +116,19 @@ class FastAPIMCPOpenAPI:
                 path_item = openapi_schema["paths"][endpoint_path]
 
                 if method.lower() in path_item:
+                    operation = path_item[method.lower()].copy()
+                    
+                    # Remove operationId if present
+                    if "operationId" in operation:
+                        del operation["operationId"]
+                    
+                    # Resolve all $ref references in the operation
+                    resolved_operation = self._resolve_refs(operation, openapi_schema)
+                    
                     endpoint_schema = {
                         "path": endpoint_path,
                         "method": method,
-                        "operation": path_item[method.lower()],
-                        "components": openapi_schema.get("components", {}),
+                        "operation": resolved_operation,
                     }
                     return json.dumps(endpoint_schema, indent=2)
                 else:
@@ -141,6 +149,50 @@ class FastAPIMCPOpenAPI:
                     },
                     indent=2,
                 )
+
+    def _resolve_refs(self, obj: Any, openapi_schema: Dict[str, Any]) -> Any:
+        """
+        Recursively resolve all $ref references in an OpenAPI schema object.
+        
+        Args:
+            obj: The object to resolve references in
+            openapi_schema: The full OpenAPI schema containing components
+            
+        Returns:
+            The object with all references resolved inline
+        """
+        if isinstance(obj, dict):
+            if "$ref" in obj:
+                # Extract the reference path (e.g., "#/components/schemas/UserLogin")
+                ref_path = obj["$ref"]
+                if ref_path.startswith("#/"):
+                    # Split the path and navigate through the schema
+                    parts = ref_path[2:].split("/")  # Remove "#/" and split
+                    resolved_obj = openapi_schema
+                    for part in parts:
+                        if part in resolved_obj:
+                            resolved_obj = resolved_obj[part]
+                        else:
+                            # Reference not found, return the original $ref
+                            return obj
+                    
+                    # Recursively resolve any nested references
+                    return self._resolve_refs(resolved_obj, openapi_schema)
+                else:
+                    # External reference, return as-is
+                    return obj
+            else:
+                # Recursively resolve references in dictionary values
+                resolved_dict = {}
+                for key, value in obj.items():
+                    resolved_dict[key] = self._resolve_refs(value, openapi_schema)
+                return resolved_dict
+        elif isinstance(obj, list):
+            # Recursively resolve references in list items
+            return [self._resolve_refs(item, openapi_schema) for item in obj]
+        else:
+            # Primitive type, return as-is
+            return obj
 
     def _mount_mcp_server(self):
         """Mount the MCP server as a Starlette application with proper MCP protocol support."""
@@ -323,15 +375,19 @@ class FastAPIMCPOpenAPI:
                                                 endpoint_path
                                             ]
                                             if method.lower() in path_item:
+                                                operation = path_item[method.lower()].copy()
+                                                
+                                                # Remove operationId if present
+                                                if "operationId" in operation:
+                                                    del operation["operationId"]
+                                                
+                                                # Resolve all $ref references in the operation
+                                                resolved_operation = self._resolve_refs(operation, openapi_schema)
+                                                
                                                 endpoint_schema = {
                                                     "path": endpoint_path,
                                                     "method": method,
-                                                    "operation": path_item[
-                                                        method.lower()
-                                                    ],
-                                                    "components": openapi_schema.get(
-                                                        "components", {}
-                                                    ),
+                                                    "operation": resolved_operation,
                                                 }
                                                 result_content = json.dumps(
                                                     endpoint_schema, indent=2
