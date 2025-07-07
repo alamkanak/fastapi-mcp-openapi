@@ -51,8 +51,8 @@ if __name__ == "__main__":
 
 Your MCP server will be available at `http://localhost:8000/mcp` and provides two tools:
 
-1. **list_endpoints**: Get all available endpoints (excluding MCP endpoints)
-2. **get_endpoint_docs**: Get detailed OpenAPI documentation for a specific endpoint
+1. **listEndpoints**: Get all available endpoints (excluding MCP endpoints)
+2. **getEndpointDocs**: Get detailed OpenAPI documentation for a specific endpoint
 
 ## Configuration
 
@@ -62,6 +62,9 @@ Your MCP server will be available at `http://localhost:8000/mcp` and provides tw
 - `mount_path`: Path where MCP server will be mounted (default: "/mcp")
 - `server_name`: Name of the MCP server (default: "fastapi-openapi-mcp")
 - `server_version`: Version of the MCP server (default: "0.1.0")
+- `section_name`: Name of the section in documentation for MCP endpoints (default: "mcp")
+- `list_endpoints_tool_name`: Name of the list endpoints tool (default: "listEndpoints")
+- `get_endpoint_docs_tool_name`: Name of the get endpoint docs tool (default: "getEndpointDocs")
 
 ### Example with Custom Configuration
 
@@ -77,6 +80,9 @@ mcp = FastAPIMCPOpenAPI(
     mount_path="/api-mcp",
     server_name="Custom API Inspector",
     server_version="2.0.0"
+    section_name="api-mcp",
+    list_endpoints_tool_name="listApiEndpoints",
+    get_endpoint_docs_tool_name="getApiEndpointDocs"
 )
 ```
 
@@ -171,9 +177,30 @@ uv sync
 uv run pytest
 ```
 
+### Building the package
+
+```bash
+uv build
+```
+
+### Using locally built package
+To use the locally built package in another FastAPI project, you can either install it from the wheel file or in editable mode.
+
+```bash
+# Option 1: Install from wheel file
+pip install /path/to/fastapi_mcp_openapi-0.1.0-py3-none-any.whl
+# or with uv
+uv add /path/to/fastapi_mcp_openapi-0.1.0-py3-none-any.whl
+
+# Option 2: Install in editable mode
+pip install -e /path/to/fastapi-mcp-openapi
+# or with uv
+uv add --editable /path/to/fastapi-mcp-openapi
+```
+
 ### Example Application
 
-See `example/main.py` for a complete example application demonstrating the library's features.
+See `example.py` for a complete example application demonstrating the library's features.
 
 ## License
 
