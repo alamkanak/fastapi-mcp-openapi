@@ -1,4 +1,4 @@
-# FastAPI MCP OpenAPI
+# <div align="center">FastAPI MCP OpenAPI</div>
 
 <p align="center">
   <b>Instantly turn your FastAPI app into an AI-friendly, fully introspectable MCP server for LLMs and agents like <a href="https://www.cursor.so/">Cursor</a> and <a href="https://github.com/features/copilot">GitHub Copilot in VS Code</a>.</b><br>
@@ -6,12 +6,26 @@
 </p>
 
 <!-- Badges -->
-![PyPI](https://img.shields.io/pypi/v/fastapi-mcp-openapi?label=PyPI%20version)
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/alamkanak/fastapi-mcp-openapi?label=GitHub%20release)
-![Codecov](https://img.shields.io/codecov/c/github/alamkanak/fastapi-mcp-openapi?label=coverage)
-![License](https://img.shields.io/pypi/l/fastapi-mcp-openapi)
-![Ruff](https://img.shields.io/badge/linting-ruff-blue?logo=ruff)
-![mypy](https://img.shields.io/badge/type%20checked-mypy-blue)
+<div align="center">
+  <a href="https://pypi.org/project/fastapi-mcp-openapi/">
+    <img src="https://img.shields.io/pypi/v/fastapi-mcp-openapi?label=PyPI%20version" alt="PyPI" />
+  </a>
+  <a href="https://github.com/alamkanak/fastapi-mcp-openapi/releases">
+    <img src="https://img.shields.io/github/v/tag/alamkanak/fastapi-mcp-openapi?label=GitHub%20release" alt="GitHub tag (latest by date)" />
+  </a>
+  <a href="https://app.codecov.io/gh/alamkanak/fastapi-mcp-openapi">
+    <img src="https://img.shields.io/codecov/c/github/alamkanak/fastapi-mcp-openapi?label=coverage" alt="Codecov" />
+  </a>
+  <a href="https://github.com/alamkanak/fastapi-mcp-openapi/blob/main/LICENSE">
+    <img src="https://img.shields.io/pypi/l/fastapi-mcp-openapi" alt="License" />
+  </a>
+  <a href="https://github.com/astral-sh/ruff">
+    <img src="https://img.shields.io/badge/linting-ruff-blue?logo=ruff" alt="Ruff" />
+  </a>
+  <a href="https://github.com/python/mypy">
+    <img src="https://img.shields.io/badge/type%20checked-mypy-blue" alt="mypy" />
+  </a>
+</div>
 
 ---
 
@@ -25,15 +39,6 @@
 - **Production-ready:** Used in real-world AI agent stacks and developer tools.
 
 ## Who's using this?
-
-<em>Are you using this project? Open a PR to add your logo or name here!</em>
-
-<!-- Example logos (uncomment and add real users if available)
-<p align="center">
-  <img src="https://raw.githubusercontent.com/modelcontextprotocol/inspector/main/assets/logo.svg" height="32" alt="MCP Inspector" />
-  <img src="https://avatars.githubusercontent.com/u/674621?v=4" height="32" alt="Anthropic" />
-</p>
--->
 
 A FastAPI library that provides [Model Context Protocol (MCP)](https://modelcontextprotocol.io) tools for endpoint introspection and OpenAPI documentation. This library allows AI agents to discover and understand your FastAPI endpoints through MCP.
 
