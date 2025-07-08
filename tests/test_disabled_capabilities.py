@@ -6,7 +6,6 @@ This script tests that the MCP server properly reports only tools capability
 and does not advertise resources or prompts capabilities.
 """
 
-import json
 import asyncio
 from fastapi import FastAPI
 from fastapi_mcp_openapi import FastAPIMCPOpenAPI
@@ -41,28 +40,8 @@ async def test_disabled_capabilities():
     print("\n2. Testing MCP initialization response:")
     print("-" * 30)
     
-    # Create a mock initialize request
-    init_request = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "initialize",
-        "params": {
-            "protocolVersion": "2024-11-05",
-            "clientInfo": {
-                "name": "test-client",
-                "version": "1.0.0"
-            }
-        }
-    }
-    
-    # We'll simulate what the MCP handler would return
-    # Based on the code, it should return capabilities with only tools
-    expected_capabilities = {
-        "tools": {}
-    }
-    
     print("✅ Expected capabilities structure:")
-    print(f"   - tools: {{}}")
+    print("   - tools: {}")
     print("✅ Resources capability: DISABLED (not present)")
     print("✅ Prompts capability: DISABLED (not present)")
     

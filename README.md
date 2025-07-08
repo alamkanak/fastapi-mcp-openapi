@@ -1,6 +1,6 @@
 # FastAPI MCP OpenAPI
 
-A FastAPI library that provides Model Context Protocol (MCP) tools for endpoint introspection and OpenAPI documentation. This library allows AI agents to discover and understand your FastAPI endpoints through MCP.
+A FastAPI library that provides [Model Context Protocol (MCP)](https://modelcontextprotocol.io) tools for endpoint introspection and OpenAPI documentation. This library allows AI agents to discover and understand your FastAPI endpoints through MCP.
 
 ## Features
 
@@ -55,6 +55,9 @@ Your MCP server will be available at `http://localhost:8000/mcp` and provides tw
 1. **listEndpoints**: Get all available endpoints (excluding MCP endpoints)
 2. **getEndpointDocs**: Get detailed OpenAPI documentation for a specific endpoint
 
+> [!CAUTION]
+> All API endpoints must be fully typed with Pydantic models or FastAPI's native types to ensure proper OpenAPI generation and MCP compatibility.
+
 ## Configuration
 
 ### Constructor Parameters
@@ -89,7 +92,7 @@ mcp = FastAPIMCPOpenAPI(
 
 ## MCP Tools
 
-### 1. list_endpoints
+### 1. listEndpoints
 
 Lists all available FastAPI endpoints with their metadata.
 
@@ -101,7 +104,7 @@ Lists all available FastAPI endpoints with their metadata.
 - `name`: Endpoint name
 - `summary`: Endpoint summary from docstring
 
-### 2. get_endpoint_docs
+### 2. getEndpointDocs
 
 Get detailed OpenAPI documentation for a specific endpoint.
 
@@ -144,17 +147,19 @@ This library is designed to work with AI agents and MCP clients like:
 - VS Code extensions with MCP support
 - Custom MCP clients
 
-Example client configuration for Claude Desktop:
+Example client configuration for VS Code Copilot:
 
 ```json
 {
   "mcpServers": {
-    "fastapi-mcp-openapi": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "http://localhost:8000/mcp"
-      ]
+    "your-api-name": {
+      "url": "http://localhost:8000/mcp",
+      "type": "sse",
+      "dev": {
+          "debug": {
+              "type": "web",
+          }
+      }
     }
   }
 }
@@ -167,7 +172,8 @@ Example client configuration for Claude Desktop:
 ```bash
 git clone <repository-url>
 cd fastapi-mcp-openapi
-uv sync
+uv venv
+uv pip install .
 ```
 
 ### Running tests
@@ -197,9 +203,32 @@ pip install -e /path/to/fastapi-mcp-openapi
 uv add --editable /path/to/fastapi-mcp-openapi
 ```
 
-### Example Application
+## Example Applications
 
-See `example.py` for a complete example application demonstrating the library's features.
+This repository includes two example applications in the `examples/` folder demonstrating the library's features:
+
+### Simple Example (`examples/simple_example.py`)
+
+A minimal example showing basic integration:
+
+```bash
+# Run the simple example
+python examples/simple_example.py
+```
+
+This creates a basic FastAPI app with a few endpoints and shows the MCP integration info on startup.
+
+### Complete Example (`examples/advanced_example.py`)
+
+A comprehensive example with multiple endpoint types, Pydantic models, and full CRUD operations:
+
+```bash
+# Run the complete example
+python examples/advanced_example.py
+```
+
+Both examples can be seen in docs url at `http://localhost:8000/docs` after running the application.
+Use claude [MCP inspector](https://github.com/modelcontextprotocol/inspector) to see the MCP endpoints and tools. Connect to the MCP server at `http://localhost:8000/mcp` with transport type Streamable HTTP.
 
 ## License
 

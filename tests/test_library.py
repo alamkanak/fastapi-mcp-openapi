@@ -51,7 +51,7 @@ def test_library_functionality():
         
     except Exception as e:
         print(f"❌ Error during initialization: {e}")
-        return False
+        assert False, f"Library initialization failed: {e}"
     
     # Test endpoint introspection
     print("\n2. Testing endpoint introspection:")
@@ -75,7 +75,7 @@ def test_library_functionality():
         
     except Exception as e:
         print(f"❌ Error during endpoint introspection: {e}")
-        return False
+        assert False, f"Endpoint introspection failed: {e}"
     
     # Test OpenAPI schema generation
     print("\n3. Testing OpenAPI schema generation:")
@@ -104,25 +104,23 @@ def test_library_functionality():
                     print(f"   Summary: {operation.get('summary', 'N/A')}")
                 else:
                     print("❌ Root endpoint GET method not found")
+                    assert False, "Root endpoint GET method not found"
             else:
                 print("❌ Root endpoint not found in OpenAPI schema")
+                assert False, "Root endpoint not found in OpenAPI schema"
         else:
             print("❌ No paths found in OpenAPI schema")
-            return False
+            assert False, "No paths found in OpenAPI schema"
             
     except Exception as e:
         print(f"❌ Error during OpenAPI schema generation: {e}")
-        return False
+        assert False, f"OpenAPI schema generation failed: {e}"
     
     print("\n✅ All tests completed successfully!")
     print("\nNext steps:")
     print("- Run the example app to test the full integration")
     print("- Use an MCP client to test the actual tools")
     print("- Check the mounted endpoints at /mcp/")
-    
-    return True
 
 if __name__ == "__main__":
-    success = test_library_functionality()
-    if not success:
-        exit(1)
+    test_library_functionality()
