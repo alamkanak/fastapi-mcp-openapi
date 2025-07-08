@@ -1,17 +1,11 @@
-"""
-Direct test of the MCP tools functionality.
-
-This script directly calls the MCP tool functions to verify they work correctly.
-"""
-
 import asyncio
 
 from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 
 from fastapi_mcp_openapi import FastAPIMCPOpenAPI
 
-# Create a test FastAPI app
 app = FastAPI(title="Test API", version="1.0.0")
 
 
@@ -41,8 +35,8 @@ async def test_mcp_tools_directly():
     # Initialize MCP integration
     mcp = FastAPIMCPOpenAPI(app, mount_path="/mcp")
 
-    # Test list_endpoints functionality (simulate what the tool would do)
-    print("\n1. Testing list_endpoints logic:")
+    # Test listEndpoints functionality (simulate what the tool would do)
+    print("\n1. Testing listEndpoints logic:")
     print("-" * 30)
 
     endpoints = []
@@ -71,8 +65,6 @@ async def test_mcp_tools_directly():
     # Test get_endpoint_docs functionality
     print("\n2. Testing get_endpoint_docs logic:")
     print("-" * 30)
-
-    from fastapi.openapi.utils import get_openapi
 
     # Generate OpenAPI schema
     openapi_schema = get_openapi(

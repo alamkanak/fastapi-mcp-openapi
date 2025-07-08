@@ -10,11 +10,11 @@ authors = [
 ]
 keywords = ["fastapi", "mcp", "model-context-protocol", "openapi", "api-documentation"]
 dependencies = [
-    "fastapi>=0.115.14",
+    "fastapi>=0.116.0",
     "jsonrpc-base>=2.2.0",
     "mcp>=1.10.1",
     "pydantic>=2.11.7",
-    "sse-starlette>=2.3.6",
+    "sse-starlette>=2.4.1",
     "starlette>=0.46.2",
     "typing-extensions>=4.14.1",
     "uvicorn>=0.35.0",
@@ -29,8 +29,10 @@ dev = [
     "httpx>=0.28.1",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.0.0",
-    "ruff>=0.8.0",
-    "mypy>=1.8.0",
+    "ruff>=0.12.2",
+    "mypy>=1.16.1",
+    "pytest-cov>=6.2.1",
+    "coverage>=7.9.2",
 ]
 
 [project.optional-dependencies]
@@ -38,8 +40,8 @@ dev = [
     "httpx>=0.28.1",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.0.0",
-    "ruff>=0.8.0",
-    "mypy>=1.8.0",
+    "ruff>=0.12.2",
+    "mypy>=1.16.1",
 ]
 
 [tool.pytest.ini_options]
@@ -85,3 +87,31 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
 strict_equality = true
+
+[tool.coverage.run]
+source = ["fastapi_mcp_openapi"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*Protocol.*:",
+    "@(abc\\.)?abstractmethod",
+]
+show_missing = true
+precision = 2
+
+[tool.coverage.html]
+directory = "htmlcov"

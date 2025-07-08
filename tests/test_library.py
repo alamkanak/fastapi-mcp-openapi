@@ -1,11 +1,5 @@
-"""
-Test script for FastAPI MCP OpenAPI library.
-
-This script tests the core functionality of the library to ensure
-the MCP tools work correctly.
-"""
-
 from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 
 from fastapi_mcp_openapi import FastAPIMCPOpenAPI
@@ -89,8 +83,6 @@ def test_library_functionality():
     print("-" * 30)
 
     try:
-        from fastapi.openapi.utils import get_openapi
-
         openapi_schema = get_openapi(
             title=app.title,
             version=app.version,
