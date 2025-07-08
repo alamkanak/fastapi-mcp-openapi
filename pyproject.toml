@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 authors = [
-    {name = "FastAPI MCP OpenAPI Contributors"}
+    {name = "Raquib Ul Alam (Kanak)"}
 ]
 keywords = ["fastapi", "mcp", "model-context-protocol", "openapi", "api-documentation"]
 dependencies = [

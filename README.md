@@ -1,4 +1,15 @@
+
 # FastAPI MCP OpenAPI
+
+
+<!-- Badges -->
+![PyPI](https://img.shields.io/pypi/v/fastapi-mcp-openapi?label=PyPI%20version)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/alamkanak/fastapi-mcp-openapi?label=GitHub%20release)
+![Codecov](https://img.shields.io/codecov/c/github/alamkanak/fastapi-mcp-openapi?label=coverage)
+![License](https://img.shields.io/pypi/l/fastapi-mcp-openapi)
+![Ruff](https://img.shields.io/badge/linting-ruff-blue?logo=ruff)
+![mypy](https://img.shields.io/badge/type%20checked-mypy-blue)
+
 
 A FastAPI library that provides [Model Context Protocol (MCP)](https://modelcontextprotocol.io) tools for endpoint introspection and OpenAPI documentation. This library allows AI agents to discover and understand your FastAPI endpoints through MCP.
 
