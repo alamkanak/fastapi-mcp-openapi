@@ -1,7 +1,7 @@
 # <div align="center">FastAPI MCP OpenAPI</div>
 
 <p align="center">
-  <b>Instantly turn your FastAPI app into an AI-friendly, fully introspectable MCP server for LLMs and agents like <a href="https://www.cursor.so/">Cursor</a> and <a href="https://github.com/features/copilot">GitHub Copilot in VS Code</a>.</b><br>
+  <b>Instantly turn your FastAPI API Docs into an AI-friendly, fully introspectable MCP server for LLMs and agents like <a href="https://www.cursor.so/">Cursor</a> and <a href="https://github.com/features/copilot">GitHub Copilot in VS Code</a>.</b><br>
   <i>Discover, document, and stream your endpoints for next-gen AI workflows.</i>
 </p>
 
