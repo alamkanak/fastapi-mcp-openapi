@@ -7,22 +7,22 @@
 
 <!-- Badges -->
 <div align="center">
-  <a href="https://pypi.org/project/fastapi-mcp-openapi/">
+  <a href="https://pypi.org/project/fastapi-mcp-openapi/" style="text-decoration:none;">
     <img src="https://img.shields.io/pypi/v/fastapi-mcp-openapi?label=PyPI%20version" alt="PyPI" />
   </a>
-  <a href="https://github.com/alamkanak/fastapi-mcp-openapi/releases">
+  <a href="https://github.com/alamkanak/fastapi-mcp-openapi/releases" style="text-decoration:none;">
     <img src="https://img.shields.io/github/v/tag/alamkanak/fastapi-mcp-openapi?label=GitHub%20release" alt="GitHub tag (latest by date)" />
   </a>
-  <a href="https://app.codecov.io/gh/alamkanak/fastapi-mcp-openapi">
+  <a href="https://app.codecov.io/gh/alamkanak/fastapi-mcp-openapi" style="text-decoration:none;">
     <img src="https://img.shields.io/codecov/c/github/alamkanak/fastapi-mcp-openapi?label=coverage" alt="Codecov" />
   </a>
-  <a href="https://github.com/alamkanak/fastapi-mcp-openapi/blob/main/LICENSE">
+  <a href="https://github.com/alamkanak/fastapi-mcp-openapi/blob/main/LICENSE" style="text-decoration:none;">
     <img src="https://img.shields.io/pypi/l/fastapi-mcp-openapi" alt="License" />
   </a>
-  <a href="https://github.com/astral-sh/ruff">
+  <a href="https://github.com/astral-sh/ruff" style="text-decoration:none;">
     <img src="https://img.shields.io/badge/linting-ruff-blue?logo=ruff" alt="Ruff" />
   </a>
-  <a href="https://github.com/python/mypy">
+  <a href="https://github.com/python/mypy" style="text-decoration:none;">
     <img src="https://img.shields.io/badge/type%20checked-mypy-blue" alt="mypy" />
   </a>
 </div>
