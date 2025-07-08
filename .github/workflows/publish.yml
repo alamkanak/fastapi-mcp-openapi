@@ -37,9 +37,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
           
-      - name: 🧪 Run tests
+      - name: 🧪 Run tests with coverage
         run: |
-          pytest -v --tb=short
+          pytest -v --tb=short --cov=fastapi_mcp_openapi --cov-report=xml --cov-report=html --cov-report=term-missing
+          
+      - name: 📊 Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          
+      - name: 📁 Upload coverage HTML report as artifact
+        uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-html-report-publish
+          path: htmlcov/
+          retention-days: 30
 
   # Build distribution packages
   build:

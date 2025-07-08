@@ -182,8 +182,9 @@ uv pip install -e ".[dev]"
 ```bash
 uv run pytest
 
-# Coverage report
+# Coverage report (local)
 uv run pytest --cov=fastapi_mcp_openapi --cov-report=html
+
 ```
 
 ### Code Quality
