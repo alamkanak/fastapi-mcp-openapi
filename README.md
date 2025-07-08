@@ -1,5 +1,40 @@
 # FastAPI MCP OpenAPI
 
+<p align="center">
+  <b>Instantly turn your FastAPI app into an AI-friendly, fully introspectable MCP server for LLMs and agents like <a href="https://www.cursor.so/">Cursor</a> and <a href="https://github.com/features/copilot">GitHub Copilot in VS Code</a>.</b><br>
+  <i>Discover, document, and stream your endpoints for next-gen AI workflows.</i>
+</p>
+
+<!-- Badges -->
+![PyPI](https://img.shields.io/pypi/v/fastapi-mcp-openapi?label=PyPI%20version)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/alamkanak/fastapi-mcp-openapi?label=GitHub%20release)
+![Codecov](https://img.shields.io/codecov/c/github/alamkanak/fastapi-mcp-openapi?label=coverage)
+![License](https://img.shields.io/pypi/l/fastapi-mcp-openapi)
+![Ruff](https://img.shields.io/badge/linting-ruff-blue?logo=ruff)
+![mypy](https://img.shields.io/badge/type%20checked-mypy-blue)
+
+---
+
+## Why use this?
+
+- **Zero-effort LLM/MCP integration:** Expose your FastAPI endpoints to AI agents, Cursor, GitHub Copilot, and other dev tools with a single line of code.
+- **Seamless API doc connectivity:** Tools like Cursor and Copilot can instantly discover and use your API docs for autocompletion, endpoint introspection, and more for app development.
+- **Full OpenAPI support:** Get detailed, resolved OpenAPI docs for every endpoint—no more guessing what your API does.
+- **Streamable, modern protocol:** Implements the latest MCP Streamable HTTP transport for real-time, agent-friendly workflows.
+- **Security by default:** CORS, origin validation, and session management out of the box.
+- **Production-ready:** Used in real-world AI agent stacks and developer tools.
+
+## Who's using this?
+
+<em>Are you using this project? Open a PR to add your logo or name here!</em>
+
+<!-- Example logos (uncomment and add real users if available)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/modelcontextprotocol/inspector/main/assets/logo.svg" height="32" alt="MCP Inspector" />
+  <img src="https://avatars.githubusercontent.com/u/674621?v=4" height="32" alt="Anthropic" />
+</p>
+-->
+
 A FastAPI library that provides [Model Context Protocol (MCP)](https://modelcontextprotocol.io) tools for endpoint introspection and OpenAPI documentation. This library allows AI agents to discover and understand your FastAPI endpoints through MCP.
 
 ## Features
@@ -12,43 +47,41 @@ A FastAPI library that provides [Model Context Protocol (MCP)](https://modelcont
 - **Security**: Built-in CORS protection and origin validation
 - **Focused Tool Set**: Only provides tools capability - resources and prompts endpoints are disabled
 
-## Installation
+
+## 🚀 Try it in 5 minutes
 
 ```bash
 pip install fastapi-mcp-openapi
-```
-
-Or with uv:
-
-```bash
+# or
 uv add fastapi-mcp-openapi
 ```
 
-## Quick Start
+Create a file called `main.py`:
 
 ```python
 from fastapi import FastAPI
 from fastapi_mcp_openapi import FastAPIMCPOpenAPI
 
-# Create your FastAPI app
 app = FastAPI(title="My API", version="1.0.0")
 
-# Add some example endpoints
-@app.get("/users/{user_id}")
-async def get_user(user_id: int):
-    return {"user_id": user_id, "name": "John Doe"}
+@app.get("/hello")
+async def hello():
+    return {"message": "Hello, world!"}
 
-@app.post("/users/")
-async def create_user(user_data: dict):
-    return {"message": "User created", "data": user_data}
-
-# Create and mount the MCP server
 mcp = FastAPIMCPOpenAPI(app)
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
+
+Run it:
+
+```bash
+python main.py
+```
+
+Visit [http://localhost:8000/mcp](http://localhost:8000/mcp) to see your MCP server in action!
 
 Your MCP server will be available at `http://localhost:8000/mcp` and provides two tools:
 
