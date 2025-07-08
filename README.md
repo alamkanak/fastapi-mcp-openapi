@@ -173,6 +173,7 @@ Example client configuration for VS Code Copilot:
 git clone <repository-url>
 cd fastapi-mcp-openapi
 uv venv
+source .venv/bin/activate
 uv pip install -e ".[dev]"
 ```
 
@@ -180,6 +181,9 @@ uv pip install -e ".[dev]"
 
 ```bash
 uv run pytest
+
+# Coverage report
+uv run pytest --cov=fastapi_mcp_openapi --cov-report=html
 ```
 
 ### Code Quality

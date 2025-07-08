@@ -6,6 +6,7 @@ to provide MCP tools for endpoint introspection and OpenAPI documentation.
 """
 
 import json
+from collections.abc import Callable
 from typing import Any
 
 from fastapi import FastAPI
@@ -54,6 +55,10 @@ class FastAPIMCPOpenAPI:
         self.list_endpoints_tool_name = list_endpoints_tool_name
         self.get_endpoint_docs_tool_name = get_endpoint_docs_tool_name
 
+        # Store references to tool functions for HTTP handler
+        self._list_endpoints_func: Callable[[], str] | None = None
+        self._get_endpoint_docs_func: Callable[[str, str], str] | None = None
+
         # Register MCP tools
         self._register_tools()
 
@@ -79,6 +84,10 @@ class FastAPIMCPOpenAPI:
                     if route.path.startswith(self.mount_path):
                         continue
 
+                    # Skip health endpoint added by MCP
+                    if route.path == "/health" and route.name == "health_endpoint":
+                        continue
+
                     endpoint_info = {
                         "path": route.path,
                         "methods": list(route.methods),
@@ -90,6 +99,9 @@ class FastAPIMCPOpenAPI:
                     endpoints.append(endpoint_info)
 
             return json.dumps(endpoints, indent=2)
+
+        # Store reference to the function for HTTP handler
+        self._list_endpoints_func = list_endpoints
 
         @self.mcp_server.tool(name=self.get_endpoint_docs_tool_name)
         def get_endpoint_docs(endpoint_path: str, method: str = "GET") -> str:
@@ -152,22 +164,36 @@ class FastAPIMCPOpenAPI:
                     indent=2,
                 )
 
-    def _resolve_refs(self, obj: Any, openapi_schema: dict[str, Any]) -> Any:
+        # Store reference to the function for HTTP handler
+        self._get_endpoint_docs_func = get_endpoint_docs
+
+    def _resolve_refs(
+        self, obj: Any, openapi_schema: dict[str, Any], visited_refs: set[str] | None = None
+    ) -> Any:
         """
         Recursively resolve all $ref references in an OpenAPI schema object.
 
         Args:
             obj: The object to resolve references in
             openapi_schema: The full OpenAPI schema containing components
+            visited_refs: Set of reference paths already being resolved (for circular reference protection)
 
         Returns:
             The object with all references resolved inline
         """
+        if visited_refs is None:
+            visited_refs = set()
+
         if isinstance(obj, dict):
             if "$ref" in obj:
                 # Extract the reference path (e.g., "#/components/schemas/UserLogin")
                 ref_path = obj["$ref"]
                 if ref_path.startswith("#/"):
+                    # Check for circular reference
+                    if ref_path in visited_refs:
+                        # Return the $ref as-is to prevent infinite recursion
+                        return obj
+
                     # Split the path and navigate through the schema
                     parts = ref_path[2:].split("/")  # Remove "#/" and split
                     resolved_obj = openapi_schema
@@ -178,8 +204,9 @@ class FastAPIMCPOpenAPI:
                             # Reference not found, return the original $ref
                             return obj
 
-                    # Recursively resolve any nested references
-                    return self._resolve_refs(resolved_obj, openapi_schema)
+                    # Add this ref to the visited set and recursively resolve
+                    new_visited = visited_refs | {ref_path}
+                    return self._resolve_refs(resolved_obj, openapi_schema, new_visited)
                 else:
                     # External reference, return as-is
                     return obj
@@ -187,11 +214,11 @@ class FastAPIMCPOpenAPI:
                 # Recursively resolve references in dictionary values
                 resolved_dict = {}
                 for key, value in obj.items():
-                    resolved_dict[key] = self._resolve_refs(value, openapi_schema)
+                    resolved_dict[key] = self._resolve_refs(value, openapi_schema, visited_refs)
                 return resolved_dict
         elif isinstance(obj, list):
             # Recursively resolve references in list items
-            return [self._resolve_refs(item, openapi_schema) for item in obj]
+            return [self._resolve_refs(item, openapi_schema, visited_refs) for item in obj]
         else:
             # Primitive type, return as-is
             return obj
@@ -199,7 +226,9 @@ class FastAPIMCPOpenAPI:
     def _mount_mcp_server(self) -> None:
         """Mount the MCP server as a Starlette application with proper MCP protocol support."""
 
-        async def handle_mcp_request(scope: Scope, receive: Receive, send: Send) -> None:
+        async def handle_mcp_request(
+            scope: Scope, receive: Receive, send: Send
+        ) -> None:
             """Handle MCP protocol requests."""
             if scope["type"] == "http":
                 request = Request(scope, receive)
@@ -335,94 +364,16 @@ class FastAPIMCPOpenAPI:
                                     )
 
                                     if tool_name == self.list_endpoints_tool_name:
-                                        # Execute list_endpoints logic
-                                        endpoints = []
-                                        for route in self.app.routes:
-                                            if isinstance(route, APIRoute):
-                                                if route.path.startswith(
-                                                    self.mount_path
-                                                ):
-                                                    continue
-                                                endpoint_info = {
-                                                    "path": route.path,
-                                                    "methods": list(route.methods),
-                                                    "name": route.name,
-                                                    "summary": getattr(
-                                                        route.endpoint, "__doc__", ""
-                                                    ).split("\n")[0]
-                                                    if route.endpoint is not None
-                                                    and getattr(
-                                                        route.endpoint, "__doc__", None
-                                                    )
-                                                    else None,
-                                                }
-                                                endpoints.append(endpoint_info)
-
-                                        result_content = json.dumps(endpoints, indent=2)
+                                        # Call the actual registered tool function
+                                        assert self._list_endpoints_func is not None
+                                        result_content = self._list_endpoints_func()
 
                                     elif tool_name == self.get_endpoint_docs_tool_name:
-                                        # Execute get_endpoint_docs logic
+                                        # Call the actual registered tool function
                                         endpoint_path = tool_args.get("endpoint_path")
-                                        method = tool_args.get("method", "GET").upper()
-
-                                        openapi_schema = get_openapi(
-                                            title=self.app.title,
-                                            version=self.app.version,
-                                            description=self.app.description,
-                                            routes=self.app.routes,
-                                        )
-
-                                        if (
-                                            "paths" in openapi_schema
-                                            and endpoint_path in openapi_schema["paths"]
-                                        ):
-                                            path_item = openapi_schema["paths"][
-                                                endpoint_path
-                                            ]
-                                            if method.lower() in path_item:
-                                                operation = path_item[
-                                                    method.lower()
-                                                ].copy()
-
-                                                # Remove operationId if present
-                                                if "operationId" in operation:
-                                                    del operation["operationId"]
-
-                                                # Resolve all $ref references in the operation
-                                                resolved_operation = self._resolve_refs(
-                                                    operation, openapi_schema
-                                                )
-
-                                                endpoint_schema = {
-                                                    "path": endpoint_path,
-                                                    "method": method,
-                                                    "operation": resolved_operation,
-                                                }
-                                                result_content = json.dumps(
-                                                    endpoint_schema, indent=2
-                                                )
-                                            else:
-                                                result_content = json.dumps(
-                                                    {
-                                                        "error": f"Method {method} not found for endpoint {endpoint_path}",
-                                                        "available_methods": list(
-                                                            path_item.keys()
-                                                        ),
-                                                    },
-                                                    indent=2,
-                                                )
-                                        else:
-                                            result_content = json.dumps(
-                                                {
-                                                    "error": f"Endpoint {endpoint_path} not found",
-                                                    "available_endpoints": list(
-                                                        openapi_schema.get(
-                                                            "paths", {}
-                                                        ).keys()
-                                                    ),
-                                                },
-                                                indent=2,
-                                            )
+                                        method = tool_args.get("method", "GET")
+                                        assert self._get_endpoint_docs_func is not None
+                                        result_content = self._get_endpoint_docs_func(endpoint_path, method)
                                     else:
                                         result_content = json.dumps(
                                             {"error": f"Unknown tool: {tool_name}"}
