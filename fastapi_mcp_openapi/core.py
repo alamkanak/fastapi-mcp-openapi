@@ -6,13 +6,15 @@ to provide MCP tools for endpoint introspection and OpenAPI documentation.
 """
 
 import json
-from typing import Dict, Any
+from typing import Any
+
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 from mcp.server.fastmcp import FastMCP
 from starlette.requests import Request
 from starlette.responses import Response
+from starlette.types import Message, Receive, Scope, Send
 
 
 class FastAPIMCPOpenAPI:
@@ -58,7 +60,7 @@ class FastAPIMCPOpenAPI:
         # Mount the MCP server to the FastAPI app
         self._mount_mcp_server()
 
-    def _register_tools(self):
+    def _register_tools(self) -> None:
         """Register the MCP tools for endpoint introspection."""
 
         @self.mcp_server.tool(name=self.list_endpoints_tool_name)
@@ -117,14 +119,14 @@ class FastAPIMCPOpenAPI:
 
                 if method.lower() in path_item:
                     operation = path_item[method.lower()].copy()
-                    
+
                     # Remove operationId if present
                     if "operationId" in operation:
                         del operation["operationId"]
-                    
+
                     # Resolve all $ref references in the operation
                     resolved_operation = self._resolve_refs(operation, openapi_schema)
-                    
+
                     endpoint_schema = {
                         "path": endpoint_path,
                         "method": method,
@@ -150,14 +152,14 @@ class FastAPIMCPOpenAPI:
                     indent=2,
                 )
 
-    def _resolve_refs(self, obj: Any, openapi_schema: Dict[str, Any]) -> Any:
+    def _resolve_refs(self, obj: Any, openapi_schema: dict[str, Any]) -> Any:
         """
         Recursively resolve all $ref references in an OpenAPI schema object.
-        
+
         Args:
             obj: The object to resolve references in
             openapi_schema: The full OpenAPI schema containing components
-            
+
         Returns:
             The object with all references resolved inline
         """
@@ -175,7 +177,7 @@ class FastAPIMCPOpenAPI:
                         else:
                             # Reference not found, return the original $ref
                             return obj
-                    
+
                     # Recursively resolve any nested references
                     return self._resolve_refs(resolved_obj, openapi_schema)
                 else:
@@ -194,10 +196,10 @@ class FastAPIMCPOpenAPI:
             # Primitive type, return as-is
             return obj
 
-    def _mount_mcp_server(self):
+    def _mount_mcp_server(self) -> None:
         """Mount the MCP server as a Starlette application with proper MCP protocol support."""
 
-        async def handle_mcp_request(scope, receive, send):
+        async def handle_mcp_request(scope: Scope, receive: Receive, send: Send) -> None:
             """Handle MCP protocol requests."""
             if scope["type"] == "http":
                 request = Request(scope, receive)
@@ -247,7 +249,10 @@ class FastAPIMCPOpenAPI:
                                     "version": self.server_version,
                                     "protocol": "mcp",
                                     "mount_path": self.mount_path,
-                                    "tools": [self.list_endpoints_tool_name, self.get_endpoint_docs_tool_name],
+                                    "tools": [
+                                        self.list_endpoints_tool_name,
+                                        self.get_endpoint_docs_tool_name,
+                                    ],
                                 }
                             ),
                             media_type="application/json",
@@ -345,7 +350,7 @@ class FastAPIMCPOpenAPI:
                                                     "summary": getattr(
                                                         route.endpoint, "__doc__", ""
                                                     ).split("\n")[0]
-                                                    if route.endpoint
+                                                    if route.endpoint is not None
                                                     and getattr(
                                                         route.endpoint, "__doc__", None
                                                     )
@@ -375,15 +380,19 @@ class FastAPIMCPOpenAPI:
                                                 endpoint_path
                                             ]
                                             if method.lower() in path_item:
-                                                operation = path_item[method.lower()].copy()
-                                                
+                                                operation = path_item[
+                                                    method.lower()
+                                                ].copy()
+
                                                 # Remove operationId if present
                                                 if "operationId" in operation:
                                                     del operation["operationId"]
-                                                
+
                                                 # Resolve all $ref references in the operation
-                                                resolved_operation = self._resolve_refs(operation, openapi_schema)
-                                                
+                                                resolved_operation = self._resolve_refs(
+                                                    operation, openapi_schema
+                                                )
+
                                                 endpoint_schema = {
                                                     "path": endpoint_path,
                                                     "method": method,
@@ -496,7 +505,7 @@ class FastAPIMCPOpenAPI:
         @self.app.post(self.mount_path, tags=[self.section_name])
         @self.app.get(self.mount_path, tags=[self.section_name])
         @self.app.options(self.mount_path, tags=[self.section_name])
-        async def mcp_direct_handler(request: Request):
+        async def mcp_direct_handler(request: Request) -> Response:
             """Direct handler for MCP requests to avoid redirects."""
             # Create a minimal scope for the handler
             scope = {
@@ -512,7 +521,7 @@ class FastAPIMCPOpenAPI:
             # Create receive and send callables
             body = await request.body()
 
-            async def receive():
+            async def receive() -> dict[str, Any]:
                 return {"type": "http.request", "body": body, "more_body": False}
 
             response_started = False
@@ -520,7 +529,7 @@ class FastAPIMCPOpenAPI:
             response_status = 200
             response_headers = []
 
-            async def send(message):
+            async def send(message: Message) -> None:
                 nonlocal \
                     response_started, \
                     response_body, \
@@ -545,7 +554,7 @@ class FastAPIMCPOpenAPI:
         # Add health endpoint for MCP Inspector
         @self.app.get("/health", tags=[self.section_name])
         @self.app.options("/health", tags=[self.section_name])
-        async def health_endpoint(request: Request):
+        async def health_endpoint(request: Request) -> Response:
             """Health check endpoint for MCP Inspector."""
             if request.method == "OPTIONS":
                 return Response(
@@ -575,7 +584,7 @@ class FastAPIMCPOpenAPI:
                 },
             )
 
-    def get_mcp_info(self) -> Dict[str, Any]:
+    def get_mcp_info(self) -> dict[str, Any]:
         """
         Get information about the mounted MCP server.
 

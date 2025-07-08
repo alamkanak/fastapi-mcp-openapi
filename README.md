@@ -173,7 +173,7 @@ Example client configuration for VS Code Copilot:
 git clone <repository-url>
 cd fastapi-mcp-openapi
 uv venv
-uv pip install .
+uv pip install -e ".[dev]"
 ```
 
 ### Running tests
@@ -182,11 +182,33 @@ uv pip install .
 uv run pytest
 ```
 
+### Code Quality
+
+This project uses several tools to maintain code quality:
+
+```bash
+# Run linting
+ruff check .
+
+# Auto-fix linting issues
+ruff check . --fix
+
+# Format code
+ruff format .
+
+# Type checking
+mypy fastapi_mcp_openapi --ignore-missing-imports
+```
+
 ### Building the package
 
 ```bash
 uv build
 ```
+
+### Publishing
+
+See [PUBLISHING.md](PUBLISHING.md) for detailed instructions on setting up automated PyPI publishing with GitHub Actions.
 
 ### Using locally built package
 To use the locally built package in another FastAPI project, you can either install it from the wheel file or in editable mode.

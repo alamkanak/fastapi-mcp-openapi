@@ -8,7 +8,7 @@ from fastapi import FastAPI
 def test_app():
     """Create a test FastAPI app for use in tests."""
     app = FastAPI(title="Test API", version="1.0.0")
-    
+
     @app.get("/")
     async def root():
         """Root endpoint."""
@@ -23,5 +23,5 @@ def test_app():
     async def create_user(name: str):
         """Create a new user."""
         return {"message": f"Created user {name}"}
-    
+
     return app

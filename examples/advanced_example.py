@@ -5,17 +5,17 @@ This example shows how to integrate the library with a real FastAPI app
 that has various types of endpoints.
 """
 
-from fastapi import FastAPI, HTTPException, Query, Path
+from fastapi import FastAPI, HTTPException, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+
 from fastapi_mcp_openapi.core import FastAPIMCPOpenAPI
 
 # Create FastAPI app
 app = FastAPI(
     title="Example API",
     version="1.0.0",
-    description="An example API to demonstrate FastAPI MCP OpenAPI integration"
+    description="An example API to demonstrate FastAPI MCP OpenAPI integration",
 )
 
 # Add CORS middleware to allow cross-origin requests
@@ -27,23 +27,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Pydantic models
 class User(BaseModel):
     id: int
     name: str
     email: str
-    age: Optional[int] = None
+    age: int | None = None
+
 
 class UserCreate(BaseModel):
     name: str
     email: str
-    age: Optional[int] = None
+    age: int | None = None
+
 
 class Post(BaseModel):
     id: int
     title: str
     content: str
     author_id: int
+
 
 # Sample data
 users_db = [
@@ -56,30 +60,34 @@ posts_db = [
     Post(id=2, title="FastAPI Tips", content="Some useful FastAPI tips", author_id=2),
 ]
 
+
 # Health check endpoint
 @app.get("/health", tags=["health"])
 async def health_check():
     """Check if the API is healthy."""
     return {"status": "healthy", "version": "1.0.0"}
 
+
 # User endpoints
-@app.get("/users/", response_model=List[User], tags=["users"])
+@app.get("/users/", response_model=list[User], tags=["users"])
 async def list_users(
     skip: int = Query(0, ge=0, description="Number of users to skip"),
-    limit: int = Query(10, ge=1, le=100, description="Number of users to return")
+    limit: int = Query(10, ge=1, le=100, description="Number of users to return"),
 ):
     """Get a list of users with pagination."""
-    return users_db[skip:skip + limit]
+    return users_db[skip : skip + limit]
+
 
 @app.get("/users/{user_id}", response_model=User, tags=["users"])
 async def get_user(
-    user_id: int = Path(..., description="The ID of the user to retrieve")
+    user_id: int = Path(..., description="The ID of the user to retrieve"),
 ):
     """Get a specific user by ID."""
     for user in users_db:
         if user.id == user_id:
             return user
     raise HTTPException(status_code=404, detail="User not found")
+
 
 @app.post("/users/", response_model=User, tags=["users"])
 async def create_user(user: UserCreate):
@@ -89,10 +97,11 @@ async def create_user(user: UserCreate):
     users_db.append(new_user)
     return new_user
 
+
 @app.put("/users/{user_id}", response_model=User, tags=["users"])
 async def update_user(
     user_update: UserCreate,
-    user_id: int = Path(..., description="The ID of the user to update")
+    user_id: int = Path(..., description="The ID of the user to update"),
 ):
     """Update an existing user."""
     for i, user in enumerate(users_db):
@@ -102,9 +111,10 @@ async def update_user(
             return updated_user
     raise HTTPException(status_code=404, detail="User not found")
 
+
 @app.delete("/users/{user_id}", tags=["users"])
 async def delete_user(
-    user_id: int = Path(..., description="The ID of the user to delete")
+    user_id: int = Path(..., description="The ID of the user to delete"),
 ):
     """Delete a user."""
     for i, user in enumerate(users_db):
@@ -113,15 +123,17 @@ async def delete_user(
             return {"message": f"User {deleted_user.name} deleted successfully"}
     raise HTTPException(status_code=404, detail="User not found")
 
+
 # Post endpoints
-@app.get("/posts/", response_model=List[Post], tags=["posts"])
+@app.get("/posts/", response_model=list[Post], tags=["posts"])
 async def list_posts():
     """Get a list of all posts."""
     return posts_db
 
+
 @app.get("/posts/{post_id}", response_model=Post, tags=["posts"])
 async def get_post(
-    post_id: int = Path(..., description="The ID of the post to retrieve")
+    post_id: int = Path(..., description="The ID of the post to retrieve"),
 ):
     """Get a specific post by ID."""
     for post in posts_db:
@@ -129,9 +141,10 @@ async def get_post(
             return post
     raise HTTPException(status_code=404, detail="Post not found")
 
-@app.get("/users/{user_id}/posts", response_model=List[Post], tags=["posts", "users"])
+
+@app.get("/users/{user_id}/posts", response_model=list[Post], tags=["posts", "users"])
 async def get_user_posts(
-    user_id: int = Path(..., description="The ID of the user whose posts to retrieve")
+    user_id: int = Path(..., description="The ID of the user whose posts to retrieve"),
 ):
     """Get all posts by a specific user."""
     user_posts = [post for post in posts_db if post.author_id == user_id]
@@ -142,12 +155,13 @@ async def get_user_posts(
             raise HTTPException(status_code=404, detail="User not found")
     return user_posts
 
+
 # Search endpoint with query parameters
-@app.get("/search/users", response_model=List[User], tags=["search"])
+@app.get("/search/users", response_model=list[User], tags=["search"])
 async def search_users(
     q: str = Query(..., description="Search query for user names or emails"),
-    min_age: Optional[int] = Query(None, description="Minimum age filter"),
-    max_age: Optional[int] = Query(None, description="Maximum age filter")
+    min_age: int | None = Query(None, description="Minimum age filter"),
+    max_age: int | None = Query(None, description="Maximum age filter"),
 ):
     """Search users by name or email with optional age filters."""
     results = []
@@ -162,17 +176,18 @@ async def search_users(
             results.append(user)
     return results
 
+
 # Create and mount the MCP server
 mcp = FastAPIMCPOpenAPI(
     app=app,
     mount_path="/mcp",
     server_name="Example API MCP Server",
-    server_version="1.0.0"
+    server_version="1.0.0",
 )
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     print("Starting Example API with FastAPI MCP OpenAPI integration...")
     print("API Documentation: http://localhost:8000/docs")
     print("MCP Server: http://localhost:8000/mcp")
@@ -187,5 +202,5 @@ if __name__ == "__main__":
     print("- POST /users/ - Create new user")
     print("- GET /posts/ - List all posts")
     print("- GET /search/users - Search users with filters")
-    
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
