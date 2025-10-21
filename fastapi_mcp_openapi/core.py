@@ -111,7 +111,6 @@ class FastAPIMCPOpenAPI:
                 description=self.app.description,
                 routes=self.app.routes,
             )
-            
             authentication = {}
             if "components" in openapi_schema and "securitySchemes" in openapi_schema["components"]:
                 authentication = openapi_schema["components"]["securitySchemes"]
