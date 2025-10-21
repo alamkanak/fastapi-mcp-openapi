@@ -71,7 +71,7 @@ class FastAPIMCPOpenAPI:
         @self.mcp_server.tool(name=self.list_endpoints_tool_name)
         def list_endpoints() -> str:
             """
-            List all user-defined FastAPI endpoints (excluding MCP endpoints).
+            List all FastAPI endpoints and authentication strategy.
 
             Returns:
                 JSON string containing a list of endpoint information
@@ -88,13 +88,19 @@ class FastAPIMCPOpenAPI:
                     if route.path == "/health" and route.name == "health_endpoint":
                         continue
 
+                    # Find the first non empty line
+                    summary = None
+                    if route.endpoint.__doc__:
+                        for line in getattr(route.endpoint, "__doc__", "").split("\n"):
+                            if line.strip():
+                                summary = line.strip()
+                                break
+
                     endpoint_info = {
                         "path": route.path,
                         "methods": list(route.methods),
                         "name": route.name,
-                        "summary": getattr(route.endpoint, "__doc__", "").split("\n")[0]
-                        if route.endpoint.__doc__
-                        else None,
+                        "summary": summary
                     }
                     endpoints.append(endpoint_info)
 
@@ -325,7 +331,7 @@ class FastAPIMCPOpenAPI:
                                             "tools": [
                                                 {
                                                     "name": self.list_endpoints_tool_name,
-                                                    "description": "List all user-defined FastAPI endpoints",
+                                                    "description": "List all FastAPI endpoints and authentication strategy",
                                                     "inputSchema": {
                                                         "type": "object",
                                                         "properties": {},
@@ -552,7 +558,7 @@ class FastAPIMCPOpenAPI:
             "tools": [
                 {
                     "name": self.list_endpoints_tool_name,
-                    "description": "List all user-defined FastAPI endpoints",
+                    "description": "List all FastAPI endpoints and authentication strategy",
                 },
                 {
                     "name": self.get_endpoint_docs_tool_name,

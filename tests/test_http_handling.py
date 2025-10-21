@@ -122,7 +122,7 @@ class TestHTTPHandling:
         assert len(tools) == 2
 
         list_tool = next(t for t in tools if t["name"] == "listEndpoints")
-        assert list_tool["description"] == "List all user-defined FastAPI endpoints"
+        assert list_tool["description"] == "List all FastAPI endpoints and authentication strategy"
         assert list_tool["inputSchema"]["type"] == "object"
 
         docs_tool = next(t for t in tools if t["name"] == "getEndpointDocs")
