@@ -122,7 +122,7 @@ class TestHTTPHandling:
         assert len(tools) == 2
 
         list_tool = next(t for t in tools if t["name"] == "listEndpoints")
-        assert list_tool["description"] == "List all user-defined FastAPI endpoints"
+        assert list_tool["description"] == "List all FastAPI endpoints and authentication strategy"
         assert list_tool["inputSchema"]["type"] == "object"
 
         docs_tool = next(t for t in tools if t["name"] == "getEndpointDocs")
@@ -156,7 +156,8 @@ class TestHTTPHandling:
         content = data["result"]["content"][0]
         assert content["type"] == "text"
 
-        endpoints = json.loads(content["text"])
+        result = json.loads(content["text"])
+        endpoints = result["endpoints"]
         assert len(endpoints) == 3  # root, get_user, create_user
 
     def test_mcp_endpoint_post_tools_call_get_endpoint_docs(self, basic_app):

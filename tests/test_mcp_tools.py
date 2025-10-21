@@ -17,7 +17,8 @@ class TestMCPTools:
         # Get the list_endpoints function from the registered tools
         # We'll test this indirectly by checking the tool works as expected
         endpoints_data = self._call_list_endpoints_tool(mcp)
-        endpoints = json.loads(endpoints_data)
+        response = json.loads(endpoints_data)
+        endpoints = response["endpoints"]
 
         # Should have 3 endpoints: root, get_user, create_user
         assert len(endpoints) == 3
@@ -46,7 +47,8 @@ class TestMCPTools:
         mcp = FastAPIMCPOpenAPI(basic_app)
 
         endpoints_data = self._call_list_endpoints_tool(mcp)
-        endpoints = json.loads(endpoints_data)
+        response = json.loads(endpoints_data)
+        endpoints = response["endpoints"]
 
         # Check that no MCP endpoints are included
         mcp_paths = [e["path"] for e in endpoints if e["path"].startswith("/mcp")]
@@ -62,7 +64,8 @@ class TestMCPTools:
         mcp = FastAPIMCPOpenAPI(basic_app, mount_path=custom_mount)
 
         endpoints_data = self._call_list_endpoints_tool(mcp)
-        endpoints = json.loads(endpoints_data)
+        response = json.loads(endpoints_data)
+        endpoints = response["endpoints"]
 
         # Should still exclude the custom mount path
         custom_paths = [
@@ -79,7 +82,8 @@ class TestMCPTools:
 
         mcp = FastAPIMCPOpenAPI(empty_app)
         endpoints_data = self._call_list_endpoints_tool(mcp)
-        endpoints = json.loads(endpoints_data)
+        response = json.loads(endpoints_data)
+        endpoints = response["endpoints"]
 
         endpoint_without_doc = next(e for e in endpoints if e["path"] == "/no-doc")
         assert endpoint_without_doc["summary"] is None
@@ -179,6 +183,75 @@ class TestMCPTools:
         # operationId should be removed
         assert "operationId" not in docs["operation"]
 
+    def test_list_endpoints_with_authentication_schemes(self):
+        """Test that list_endpoints includes authentication schemes from OpenAPI."""
+        from fastapi import FastAPI, Depends
+        from fastapi.security import HTTPBearer, OAuth2AuthorizationCodeBearer
+        
+        # Create app with security schemes
+        app = FastAPI(title="Auth API", version="1.0.0")
+        
+        security = HTTPBearer()
+        oauth2_scheme = OAuth2AuthorizationCodeBearer(
+            authorizationUrl="https://example.com/auth",
+            tokenUrl="https://example.com/token",
+            scopes={"read": "read access", "write": "write access"}
+        )
+        
+        @app.get("/")
+        async def root():
+            return {"message": "public"}
+            
+        @app.get("/secure", dependencies=[Depends(security)])
+        async def secure():
+            return {"message": "secure"}
+            
+        @app.get("/oauth", dependencies=[Depends(oauth2_scheme)])
+        async def oauth():
+            return {"message": "oauth"}
+        
+        mcp = FastAPIMCPOpenAPI(app)
+        endpoints_data = self._call_list_endpoints_tool(mcp)
+        response = json.loads(endpoints_data)
+        
+        # Check structure
+        assert "endpoints" in response
+        assert "authentication" in response
+        
+        # Check endpoints
+        endpoints = response["endpoints"]
+        assert len(endpoints) == 3
+        
+        # Check authentication schemes
+        auth = response["authentication"]
+        assert len(auth) == 2
+        
+        # Validate HTTPBearer scheme
+        assert "HTTPBearer" in auth
+        assert auth["HTTPBearer"]["type"] == "http"
+        assert auth["HTTPBearer"]["scheme"] == "bearer"
+        
+        # Validate OAuth2 scheme
+        assert "OAuth2AuthorizationCodeBearer" in auth
+        oauth_scheme = auth["OAuth2AuthorizationCodeBearer"]
+        assert oauth_scheme["type"] == "oauth2"
+        assert "flows" in oauth_scheme
+        assert "authorizationCode" in oauth_scheme["flows"]
+        
+        flow = oauth_scheme["flows"]["authorizationCode"]
+        assert "scopes" in flow
+        assert "read" in flow["scopes"]
+        assert "write" in flow["scopes"]
+
+    def test_list_endpoints_empty_authentication(self, empty_app):
+        """Test that list_endpoints returns empty authentication when no schemes are present."""
+        mcp = FastAPIMCPOpenAPI(empty_app)
+        endpoints_data = self._call_list_endpoints_tool(mcp)
+        response = json.loads(endpoints_data)
+        
+        assert "authentication" in response
+        assert response["authentication"] == {}
+
     def _call_list_endpoints_tool(self, mcp: FastAPIMCPOpenAPI) -> str:
         """Helper method to call the list_endpoints tool."""
         # Simulate calling the list_endpoints tool
@@ -205,7 +278,26 @@ class TestMCPTools:
                 }
                 endpoints.append(endpoint_info)
 
-        return json.dumps(endpoints, indent=2)
+        # Get authentication information from OpenAPI schema
+        from fastapi.openapi.utils import get_openapi
+        
+        openapi_schema = get_openapi(
+            title=mcp.app.title,
+            version=mcp.app.version,
+            description=mcp.app.description,
+            routes=mcp.app.routes,
+        )
+        
+        authentication = {}
+        if "components" in openapi_schema and "securitySchemes" in openapi_schema["components"]:
+            authentication = openapi_schema["components"]["securitySchemes"]
+
+        response_data = {
+            "endpoints": endpoints,
+            "authentication": authentication
+        }
+
+        return json.dumps(response_data, indent=2)
 
     def _call_get_endpoint_docs_tool(
         self, mcp: FastAPIMCPOpenAPI, endpoint_path: str, method: str = "GET"

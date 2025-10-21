@@ -35,7 +35,8 @@ class TestMCPToolExecution:
 
         # Parse the actual tool output
         content = result["result"]["content"][0]["text"]
-        endpoints = json.loads(content)
+        response_data = json.loads(content)
+        endpoints = response_data["endpoints"]
 
         # Verify the endpoints are correct (should have basic_app endpoints)
         assert len(endpoints) == 3  # root, get_user, create_user
@@ -74,7 +75,8 @@ class TestMCPToolExecution:
         assert response.status_code == 200
 
         content = response.json()["result"]["content"][0]["text"]
-        endpoints = json.loads(content)
+        response_data = json.loads(content)
+        endpoints = response_data["endpoints"]
 
         # Should have the no-doc endpoint
         no_doc_ep = next(e for e in endpoints if e["path"] == "/no-doc")
@@ -94,7 +96,8 @@ class TestMCPToolExecution:
 
         response = client.post("/mcp", json=payload)
         content = response.json()["result"]["content"][0]["text"]
-        endpoints = json.loads(content)
+        response_data = json.loads(content)
+        endpoints = response_data["endpoints"]
 
         # Verify no MCP paths are included
         mcp_paths = [e["path"] for e in endpoints if e["path"].startswith("/mcp")]
@@ -123,7 +126,8 @@ class TestMCPToolExecution:
 
         response = client.post(custom_mount, json=payload)
         content = response.json()["result"]["content"][0]["text"]
-        endpoints = json.loads(content)
+        response_data = json.loads(content)
+        endpoints = response_data["endpoints"]
 
         # Should exclude custom mount path
         custom_paths = [
@@ -176,7 +180,8 @@ class TestMCPToolExecution:
 
         response = client.post("/mcp", json=payload)
         content = response.json()["result"]["content"][0]["text"]
-        endpoints = json.loads(content)
+        response_data = json.loads(content)
+        endpoints = response_data["endpoints"]
 
         # Complex app should have many endpoints
         assert len(endpoints) >= 5
