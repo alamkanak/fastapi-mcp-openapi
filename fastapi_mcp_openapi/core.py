@@ -88,7 +88,7 @@ class FastAPIMCPOpenAPI:
                     if route.path == "/health" and route.name == "health_endpoint":
                         continue
 
-                    # Find the first non empty line
+                    # Find the first non-empty line
                     summary = None
                     if route.endpoint.__doc__:
                         for line in getattr(route.endpoint, "__doc__", "").split("\n"):
