@@ -156,7 +156,8 @@ class TestHTTPHandling:
         content = data["result"]["content"][0]
         assert content["type"] == "text"
 
-        endpoints = json.loads(content["text"])
+        result = json.loads(content["text"])
+        endpoints = result["endpoints"]
         assert len(endpoints) == 3  # root, get_user, create_user
 
     def test_mcp_endpoint_post_tools_call_get_endpoint_docs(self, basic_app):

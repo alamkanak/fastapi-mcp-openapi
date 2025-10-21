@@ -74,7 +74,7 @@ class FastAPIMCPOpenAPI:
             List all FastAPI endpoints and authentication strategy.
 
             Returns:
-                JSON string containing a list of endpoint information
+                JSON string containing user-defined endpoints and authentication information
             """
             endpoints = []
 
@@ -104,7 +104,24 @@ class FastAPIMCPOpenAPI:
                     }
                     endpoints.append(endpoint_info)
 
-            return json.dumps(endpoints, indent=2)
+            # Get authentication information from OpenAPI schema
+            openapi_schema = get_openapi(
+                title=self.app.title,
+                version=self.app.version,
+                description=self.app.description,
+                routes=self.app.routes,
+            )
+            
+            authentication = {}
+            if "components" in openapi_schema and "securitySchemes" in openapi_schema["components"]:
+                authentication = openapi_schema["components"]["securitySchemes"]
+
+            response_data = {
+                "endpoints": endpoints,
+                "authentication": authentication
+            }
+
+            return json.dumps(response_data, indent=2)
 
         # Store reference to the function for HTTP handler
         self._list_endpoints_func = list_endpoints

@@ -56,7 +56,8 @@ class TestIntegration:
 
         endpoints_response = response.json()
         endpoints_text = endpoints_response["result"]["content"][0]["text"]
-        endpoints = json.loads(endpoints_text)
+        result = json.loads(endpoints_text)
+        endpoints = result["endpoints"]
 
         # Should have multiple endpoints from complex_app
         assert len(endpoints) >= 5
@@ -145,8 +146,10 @@ class TestIntegration:
         response1 = client1.post("/mcp1", json=payload)
         response2 = client2.post("/mcp2", json=payload)
 
-        endpoints1 = json.loads(response1.json()["result"]["content"][0]["text"])
-        endpoints2 = json.loads(response2.json()["result"]["content"][0]["text"])
+        result1 = json.loads(response1.json()["result"]["content"][0]["text"])
+        result2 = json.loads(response2.json()["result"]["content"][0]["text"])
+        endpoints1 = result1["endpoints"]
+        endpoints2 = result2["endpoints"]
 
         # basic_app should have more endpoints than empty_app
         assert len(endpoints1) > len(endpoints2)
